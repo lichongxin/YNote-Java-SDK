@@ -50,8 +50,8 @@ public class DesktopDemo {
                 YNoteConstants.SANDBOX_USER_AUTHORIZATION_URL,
                 YNoteConstants.SANDBOX_ACCESS_TOKEN_URL);
 
-    private static final String CONSUMER_KEY = "2456f9dd37e162ffe237c8b88739925f";
-    private static final String CONSUMER_SECRET = "6c109763aa5ae85e113f26da8d247fbc";
+    private static final String CONSUMER_KEY = "Your Key";
+    private static final String CONSUMER_SECRET = "Your Secret";
     // sandbox consumer
     private static final OAuthConsumer CONSUMER = new OAuthConsumer(null,
             CONSUMER_KEY, CONSUMER_SECRET, SANDBOX_SERVICE_PROVIDER);
