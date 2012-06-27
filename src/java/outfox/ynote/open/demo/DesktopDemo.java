@@ -29,6 +29,7 @@ import outfox.ynote.open.client.YNoteException;
 import outfox.ynote.open.data.Note;
 import outfox.ynote.open.data.Notebook;
 import outfox.ynote.open.data.Resource;
+import outfox.ynote.open.data.User;
 
 /**
  * Demo which illustrate how all the interfaces of ynote client is used for
@@ -50,8 +51,8 @@ public class DesktopDemo {
                 YNoteConstants.SANDBOX_USER_AUTHORIZATION_URL,
                 YNoteConstants.SANDBOX_ACCESS_TOKEN_URL);
 
-    private static final String CONSUMER_KEY = "Your Key";
-    private static final String CONSUMER_SECRET = "Your Secret";
+    private static final String CONSUMER_KEY = "your key";
+    private static final String CONSUMER_SECRET = "your secret";
     // sandbox consumer
     private static final OAuthConsumer CONSUMER = new OAuthConsumer(null,
             CONSUMER_KEY, CONSUMER_SECRET, SANDBOX_SERVICE_PROVIDER);
@@ -59,6 +60,7 @@ public class DesktopDemo {
     private static YNoteClient client = new YNoteClient(CONSUMER);
 
     public static void main(String[] args) throws Exception {
+        
         // load the save the access token if exists
         File file = new File("conf", "access_token");
         if (file.exists()) {
@@ -76,12 +78,16 @@ public class DesktopDemo {
             }
         }
 
+        // get the user information
+        User user = getUser();
+        System.out.println("Get user information: ");
+        System.out.println(user);
         List<Notebook> notebooks = getAllNotebooks();
         System.out.println(notebooks);
         String notebook = createNotebook("New_Notebook");
         System.out.println("New Notebook is create " + notebook);
         // create a note under this notebook
-        Note note = createNote(notebook);
+        Note note = createNote(notebooks.get(0).getPath());
         System.out.println("New Note is create " + note);
         // list the new notebook, there should be one note
         List<String> notes = listNotes(notebook);
@@ -114,6 +120,9 @@ public class DesktopDemo {
         // delete the notebook
         deleteNotebook(notebook);
         System.out.println("Delete the notebook " + notebook);
+        // create a note under the application's default notebook
+        createNote(null);
+        System.out.println("Create a note under application's default notebook");
     }
 
     private static File downloadImage() throws IOException {
@@ -158,12 +167,31 @@ public class DesktopDemo {
         return callback.call();
     }
 
+    private static User getUser() throws Exception {
+        User user = null;
+        try {
+            user = client.getUser();
+        } catch (YNoteException e) {
+            if (e.getErrorCode() == 307 || e.getErrorCode() == 207) {
+                user = doOAuth(new Callable<User>() {
+                    @Override
+                    public User call() throws Exception {
+                        return client.getUser();
+                    }
+                });
+            } else {
+                throw e;
+            }
+        }
+        return user;
+    }
+
     private static List<Notebook> getAllNotebooks() throws Exception {
         List<Notebook> notebooks = new ArrayList<Notebook>();
         try {
             notebooks = client.getAllNotebooks();
         } catch (YNoteException e) {
-            if (e.getErrorCode() == 307) {
+            if (e.getErrorCode() == 307 || e.getErrorCode() == 207) {
                 notebooks = doOAuth(new Callable<List<Notebook>>() {
                     @Override
                     public List<Notebook> call() throws Exception {
@@ -182,7 +210,7 @@ public class DesktopDemo {
         try {
             notes = client.listNotes(notebook);
         } catch (YNoteException e) {
-            if (e.getErrorCode() == 307) {
+            if (e.getErrorCode() == 307 || e.getErrorCode() == 207) {
                 notes = doOAuth(new Callable<List<String>>() {
                     @Override
                     public List<String> call() throws Exception {
@@ -201,7 +229,7 @@ public class DesktopDemo {
         try {
             notebook = client.createNotebook(name);
         } catch (YNoteException e) {
-            if (e.getErrorCode() == 307) {
+            if (e.getErrorCode() == 307 || e.getErrorCode() == 207) {
                 notebook = doOAuth(new Callable<String>() {
                     @Override
                     public String call() throws Exception {
@@ -219,7 +247,7 @@ public class DesktopDemo {
         try {
             client.deletedNotebook(notebook);
         } catch (YNoteException e) {
-            if (e.getErrorCode() == 307) {
+            if (e.getErrorCode() == 307 || e.getErrorCode() == 207) {
                 doOAuth(new Callable<Object>() {
                     @Override
                     public Object call() throws Exception {
@@ -238,11 +266,12 @@ public class DesktopDemo {
         note.setAuthor("Li Lei");
         note.setSize(100);
         note.setSource("www.youdao.com");
-        note.setTitle("This is a test");
+        note.setTitle("����");
+        note.setContent("����");
         try {
             return client.createNote(notebookPath, note);
         } catch (YNoteException e) {
-            if (e.getErrorCode() == 307) {
+            if (e.getErrorCode() == 307 || e.getErrorCode() == 207) {
                 return doOAuth(new Callable<Note>() {
                     @Override
                     public Note call() throws Exception {
@@ -259,7 +288,7 @@ public class DesktopDemo {
         try {
             return client.getNote(notePath);
         } catch (YNoteException e) {
-            if (e.getErrorCode() == 307) {
+            if (e.getErrorCode() == 307 || e.getErrorCode() == 207) {
                 return doOAuth(new Callable<Note>() {
                     @Override
                     public Note call() throws Exception {
@@ -277,7 +306,7 @@ public class DesktopDemo {
         try {
             client.updateNote(note);
         } catch (YNoteException e) {
-            if (e.getErrorCode() == 307) {
+            if (e.getErrorCode() == 307 || e.getErrorCode() == 207) {
                 doOAuth(new Callable<Note>() {
                     @Override
                     public Note call() throws Exception {
@@ -296,7 +325,7 @@ public class DesktopDemo {
         try {
             return client.moveNote(notePath, destNotebookPath);
         } catch (YNoteException e) {
-            if (e.getErrorCode() == 307) {
+            if (e.getErrorCode() == 307 || e.getErrorCode() == 207) {
                 return doOAuth(new Callable<String>() {
                     @Override
                     public String call() throws Exception {
@@ -313,7 +342,7 @@ public class DesktopDemo {
         try {
             client.deleteNote(notePath);
         } catch (YNoteException e) {
-            if (e.getErrorCode() == 307) {
+            if (e.getErrorCode() == 307 || e.getErrorCode() == 207) {
                 doOAuth(new Callable<String>() {
                     @Override
                     public String call() throws Exception {
@@ -331,7 +360,7 @@ public class DesktopDemo {
         try {
             return client.uploadResource(resource);
         } catch (YNoteException e) {
-            if (e.getErrorCode() == 307) {
+            if (e.getErrorCode() == 307 || e.getErrorCode() == 207) {
                 return doOAuth(new Callable<Resource>() {
                     @Override
                     public Resource call() throws Exception {
@@ -349,7 +378,7 @@ public class DesktopDemo {
         try {
             body = client.downloadResource(url);
         } catch (YNoteException e) {
-            if (e.getErrorCode() == 307) {
+            if (e.getErrorCode() == 307 || e.getErrorCode() == 207) {
                 body = doOAuth(new Callable<InputStream>() {
                     @Override
                     public InputStream call() throws Exception {

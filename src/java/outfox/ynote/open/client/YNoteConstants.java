@@ -6,12 +6,16 @@
  */
 package outfox.ynote.open.client;
 
+import java.text.SimpleDateFormat;
+
 /**
  * Constants used in YNote client
  *
  * @author licx
  */
 public class YNoteConstants {
+
+    public static final String ENCODING = "UTF-8";
 
     /**
      * YNote Service URLS
@@ -35,7 +39,10 @@ public class YNoteConstants {
     public static final String PATH_PARAM = "path";
     public static final String SOURCE_PARAM = "source";
     public static final String AUTHOR_PARAM = "author";
-    public static final String TITLE_PARAM = "author";
+    public static final String TITLE_PARAM = "title";
     public static final String CONTENT_PARAM = "content";
     public static final String FILE_PARAM = "file";
+
+    public static final SimpleDateFormat DATE_FORMATTER =
+        new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 }

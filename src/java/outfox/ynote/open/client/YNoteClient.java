@@ -23,11 +23,13 @@ import net.oauth.OAuthException;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpResponse;
 
 import outfox.ynote.open.data.Note;
 import outfox.ynote.open.data.Notebook;
 import outfox.ynote.open.data.Resource;
+import outfox.ynote.open.data.User;
 
 /**
  * YNote client which is used to access YNote data via the open API. For a
@@ -162,13 +164,29 @@ public class YNoteClient {
         return parts[0] + "yws/open/";
     }
 
-//    OAuthMessage request = accessor.newRequestMessage(httpMethod,
-//            url, parameters);
-//    OAuthResponseMessage response = CLIENT.access(request,
-//            ParameterStyle.AUTHORIZATION_HEADER);
     //
     // Notebook operations
     //
+
+    /**
+     * Get the user information with the current authentication. 
+     *
+     * @return current user information
+     * @throws IOException
+     * @throws YNoteException
+     */
+    public User getUser() throws IOException, YNoteException {
+        lock.readLock().lock();
+        try {
+            String url = getBaseURL() + "user/get.json";
+            HttpResponse response = YNoteHttpUtils.doGet(url, null, accessor);
+            String content = YNoteHttpUtils.getResponseContent(
+                    response.getEntity().getContent());
+            return new User(content);
+        } finally {
+            lock.readLock().unlock();
+        }
+    }
 
     /**
      * Get all the notebooks for this authenticate user.
@@ -343,7 +361,9 @@ public class YNoteClient {
             parameters.put(YNoteConstants.AUTHOR_PARAM, note.getAuthor());
             parameters.put(YNoteConstants.SOURCE_PARAM, note.getSource());
             parameters.put(YNoteConstants.CONTENT_PARAM, note.getContent());
-            parameters.put(YNoteConstants.NOTEBOOK_PARAM, notebookPath);
+            if (!StringUtils.isBlank(notebookPath)) {
+                parameters.put(YNoteConstants.NOTEBOOK_PARAM, notebookPath);
+            }
             HttpResponse response = YNoteHttpUtils.doPostByMultipart(url,
                     parameters, accessor);
             String content = YNoteHttpUtils.getResponseContent(

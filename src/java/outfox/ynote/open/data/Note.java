@@ -6,18 +6,17 @@
  */
 package outfox.ynote.open.data;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import net.sf.json.JSONObject;
+import outfox.ynote.open.client.YNoteConstants;
 
 /**
  * This class represents a note.
+ *
  * @author licx
  */
 public class Note {
-    private static final SimpleDateFormat FORMATTER =
-        new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
     /**
      * JSON field names for note 
      */
@@ -175,8 +174,8 @@ public class Note {
                 + ", author=" + author
                 + ", source=" + source
                 + ", size=" + size
-                + ", createTime=" + FORMATTER.format(new Date(createTime * 1000))
-                + ", modifyTime=" + FORMATTER.format(new Date(modifyTime * 1000))
+                + ", createTime=" + YNoteConstants.DATE_FORMATTER.format(new Date(createTime * 1000))
+                + ", modifyTime=" + YNoteConstants.DATE_FORMATTER.format(new Date(modifyTime * 1000))
                 + "]";
     }
 }
